@@ -1,14 +1,14 @@
 #!<%= @enc_dir %>/venv/bin/python
 
+import sys
 import yaml
 
 
 def main():
     result = {
         "classes": [],
-        "parameters": [],
     }
-    print(yaml.dump(result))
+    sys.stdout.write(yaml.dump(result))
 
 
 if __name__ == '__main__':
