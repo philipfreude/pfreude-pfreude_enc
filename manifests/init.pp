@@ -18,6 +18,9 @@ class pfreude_enc (
   file { "${enc_dir}/${enc_file_name}":
     ensure  => present,
     content => file('pfreude_enc/enc.py'),
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0755',
     require => File[$enc_dir],
   }
 
