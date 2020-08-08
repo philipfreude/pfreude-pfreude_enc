@@ -4,4 +4,5 @@
 fixtures:
   forge_modules:
     inifile: "puppetlabs/inifile"
-#     stdlib: "puppetlabs/stdlib"
+    python: "puppet/python"
+    stdlib: "puppetlabs/stdlib"
