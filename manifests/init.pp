@@ -23,6 +23,13 @@ class pfreude_enc (
     mode    => '0755',
     require => File[$enc_dir],
   }
+  file { "${enc_dir}/settings.py":
+    ensure  => present,
+    content => template('pfreude_enc/settings.py.erb'),
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+  }
   $requirements_txt = "${enc_dir}/requirements.txt"
   file { $requirements_txt:
     ensure  => present,
