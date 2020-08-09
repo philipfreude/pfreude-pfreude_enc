@@ -28,8 +28,8 @@ class pfreude_enc (
   file { "${enc_dir}/settings.py":
     ensure  => present,
     content => template('pfreude_enc/settings.py.erb'),
-    owner   => 'root',
-    group   => 'root',
+    owner   => 'puppet',
+    group   => 'puppet',
     mode    => '0600',
   }
   $requirements_txt = "${enc_dir}/requirements.txt"
