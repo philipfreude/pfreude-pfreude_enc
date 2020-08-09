@@ -4,6 +4,8 @@ class pfreude_enc (
   String  $enc_dir           = '/etc/puppetlabs/puppet/enc',
   String  $enc_file_name     = 'enc.py',
   Boolean $manage_virtualenv = true,
+  String  $postgres_host     = '127.0.0.1',
+  String  $postgres_database = 'puppet',
   String  $postgres_user     = 'puppet',
   String  $postgres_password = '',
   Boolean $manage_puppetconf = true,
