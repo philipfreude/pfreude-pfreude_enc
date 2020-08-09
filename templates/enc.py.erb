@@ -24,7 +24,7 @@ def main(node_name):
   result = {
     "classes": [],
     "parameters": {
-      "interfaces": [dict(row) for row in interfaces]
+      "enc_interfaces": [dict(row) for row in interfaces]
     }
   }
   sys.stdout.write(yaml.dump(result))
