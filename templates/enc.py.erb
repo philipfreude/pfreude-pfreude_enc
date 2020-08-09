@@ -1,25 +1,31 @@
 #!<%= @enc_dir %>/venv/bin/python
 
-import logging
-
-logging.basicConfig(filename='/var/log/puppetlabs/puppetserver/enc.log', level=logging.DEBUG)
-
 import sys
 
 import psycopg2
+import psycopg2.extras
 import yaml
+from psycopg2.extensions import connection, cursor
 from settings import *
 
+con: connection = psycopg2.connect(host=POSTGRES_HOST, dbname=POSTGRES_DATABASE,
+                                   user=POSTGRES_USER, password=POSTGRES_PASSWORD)
+cur: cursor = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-def connect_db():
-  return psycopg2.connect(host=POSTGRES_HOST, dbname=POSTGRES_DATABASE,
-                          user=POSTGRES_USER, password=POSTGRES_PASSWORD)
+
+def get_interfaces(node_name):
+  query = "SELECT mac_address, ip_list FROM network_interfaces WHERE fqdn = %s"
+  cur.execute(query, (node_name,))
+  return cur.fetchall()
 
 
 def main(node_name):
-  con = connect_db()
+  interfaces = get_interfaces(node_name)
   result = {
     "classes": [],
+    "parameters": {
+      "interfaces": [dict(row) for row in interfaces]
+    }
   }
   sys.stdout.write(yaml.dump(result))
 
