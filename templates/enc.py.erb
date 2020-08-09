@@ -14,7 +14,7 @@ cur: cursor = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 
 def get_interfaces(node_name):
-  query = "SELECT mac_address, ip_list FROM network_interfaces WHERE fqdn = %s"
+  query = "SELECT * FROM network_interfaces WHERE fqdn = %s"
   cur.execute(query, (node_name,))
   return cur.fetchall()
 
