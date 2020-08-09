@@ -1,15 +1,32 @@
 #!<%= @enc_dir %>/venv/bin/python
 
+import logging
+
+logging.basicConfig(filename='/var/log/puppetlabs/puppetserver/enc.log', level=logging.DEBUG)
+
 import sys
+
+import psycopg2
 import yaml
+from settings import *
 
 
-def main():
-    result = {
-        "classes": [],
-    }
-    sys.stdout.write(yaml.dump(result))
+def connect_db():
+  return psycopg2.connect(host=POSTGRES_HOST, dbname=POSTGRES_DATABASE,
+                          user=POSTGRES_USER, password=POSTGRES_PASSWORD)
+
+
+def main(node_name):
+  con = connect_db()
+  result = {
+    "classes": [],
+  }
+  sys.stdout.write(yaml.dump(result))
 
 
 if __name__ == '__main__':
-    main()
+  if len(sys.argv) == 2:
+    main(sys.argv[1])
+  else:
+    sys.stderr.write("Incorrect number of arguments.")
+    sys.exit(1)
