@@ -19,12 +19,21 @@ def get_interfaces(node_name):
   return cur.fetchall()
 
 
+def get_hostname(node_name):
+  query = "SELECT * FROM hostnames WHERE fqdn = %s"
+  cur.execute(query, (node_name,))
+  hostnames = cur.fetchone()
+  return hostnames
+
+
 def main(node_name):
   interfaces = get_interfaces(node_name)
+  hostname = get_hostname(node_name)
   result = {
     "classes": [],
     "parameters": {
-      "enc_interfaces": [dict(row) for row in interfaces]
+      "enc_interfaces": [dict(row) for row in interfaces],
+      "roles": dict(hostname)['roles'],
     }
   }
   sys.stdout.write(yaml.dump(result))
