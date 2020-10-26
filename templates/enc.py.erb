@@ -34,6 +34,7 @@ def main(node_name):
     "parameters": {
       "enc_interfaces": [dict(row) for row in interfaces],
       "roles": dict(hostname)['roles'],
+      "env": dict(hostname)['env'],
     }
   }
   sys.stdout.write(yaml.dump(result))
