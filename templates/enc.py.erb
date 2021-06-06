@@ -23,7 +23,10 @@ def get_hostname(node_name):
   query = "SELECT * FROM hostnames WHERE fqdn = %s"
   cur.execute(query, (node_name,))
   hostname = cur.fetchone()
-  return dict(hostname)
+  if hostname:
+    return dict(hostname)
+  else:
+    return {}
 
 
 def main(node_name):
