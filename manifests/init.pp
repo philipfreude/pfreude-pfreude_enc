@@ -39,17 +39,10 @@ class pfreude_enc (
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    require => File[$enc_dir]
   }
   if $manage_virtualenv and !defined(Package['virtualenv']) {
     class { 'python':
-      virtualenv => 'present',
-      dev        => 'present',
-    }
-  }
-  if !defined(Package['python3-dev']) {
-    package { 'python3-dev':
-      ensure => installed,
+      dev => 'present',
     }
   }
   if !defined(Package['libpq-dev']) {
@@ -57,14 +50,12 @@ class pfreude_enc (
       ensure => installed,
     }
   }
-  python::virtualenv { "${enc_dir}/venv":
-    ensure       => present,
-    version      => '3.6',
-    requirements => $requirements_txt,
-    distribute   => false,
-    owner        => 'root',
-    cwd          => $enc_dir,
-    require      => [File[$requirements_txt], Package['python3-dev'], Package['libpq-dev']],
+  python::pyvenv { "${enc_dir}/venv":
+    ensure => present,
+  }
+  python::requirements { $requirements_txt:
+    virtualenv => "${enc_dir}/venv",
+    require    => [File[$requirements_txt], Package['libpq-dev']],
   }
 
   if $manage_puppetconf {
