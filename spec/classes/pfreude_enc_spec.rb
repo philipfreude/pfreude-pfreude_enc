@@ -8,7 +8,7 @@ describe 'pfreude_enc' do
       let(:facts) do
         os_facts.merge(
           python3_version: '3.10',
-          )
+        )
       end
 
       let(:pre_condition) { 'service { "puppetserver": }' }
