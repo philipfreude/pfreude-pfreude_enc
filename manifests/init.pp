@@ -9,7 +9,7 @@ class pfreude_enc (
   String  $postgres_user     = 'puppet',
   String  $postgres_password = '',
   Boolean $manage_puppetconf = true,
-  String  $puppetconf        = '/etc/puppetlabs/puppet/puppet.conf'
+  String  $puppetconf        = '/etc/puppetlabs/puppet/puppet.conf',
 ) {
   file { $enc_dir:
     ensure => 'directory',
@@ -66,14 +66,10 @@ class pfreude_enc (
       notify  => Service['puppetserver']
     }
     ini_setting { 'puppet-node-terminus':
-      ensure  => present,
-      section => 'master',
       setting => 'node_terminus',
       value   => 'exec',
     }
     ini_setting { 'puppet-external-nodes':
-      ensure  => present,
-      section => 'master',
       setting => 'external_nodes',
       value   => "${enc_dir}/${enc_file_name}",
     }
