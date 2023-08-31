@@ -1,5 +1,23 @@
 # @summary setup external node classifier for puppet
 #
+# @param enc_dir
+#   directory for external node classifier
+# @param enc_file_name
+#   filename of external node classifier
+# @param manage_virtualenv
+#   manage virtualenv
+# @param postgres_host
+#   postgres host
+# @param postgres_database
+#   postgres database
+# @param postgres_user
+#   postgres user
+# @param postgres_password
+#   postgres password
+# @param manage_puppetconf
+#   manage puppet.conf
+# @param puppetconf
+#   path to puppet.conf
 class pfreude_enc (
   String  $enc_dir           = '/etc/puppetlabs/puppet/enc',
   String  $enc_file_name     = 'enc.py',
@@ -7,7 +25,7 @@ class pfreude_enc (
   String  $postgres_host     = '127.0.0.1',
   String  $postgres_database = 'puppet',
   String  $postgres_user     = 'puppet',
-  String  $postgres_password = '',
+  String  $postgres_password = undef,
   Boolean $manage_puppetconf = true,
   String  $puppetconf        = '/etc/puppetlabs/puppet/puppet.conf',
 ) {
@@ -18,7 +36,6 @@ class pfreude_enc (
     mode   => '0755',
   }
   file { "${enc_dir}/${enc_file_name}":
-    ensure  => present,
     content => template('pfreude_enc/enc.py.erb'),
     owner   => 'root',
     group   => 'root',
@@ -26,7 +43,6 @@ class pfreude_enc (
     require => File[$enc_dir],
   }
   file { "${enc_dir}/settings.py":
-    ensure  => present,
     content => template('pfreude_enc/settings.py.erb'),
     owner   => 'puppet',
     group   => 'puppet',
@@ -34,7 +50,6 @@ class pfreude_enc (
   }
   $requirements_txt = "${enc_dir}/requirements.txt"
   file { $requirements_txt:
-    ensure  => present,
     content => file('pfreude_enc/requirements.txt'),
     owner   => 'root',
     group   => 'root',
@@ -63,7 +78,7 @@ class pfreude_enc (
       path    => $puppetconf,
       ensure  => present,
       section => 'master',
-      notify  => Service['puppetserver']
+      notify  => Service['puppetserver'],
     }
     ini_setting { 'puppet-node-terminus':
       setting => 'node_terminus',
