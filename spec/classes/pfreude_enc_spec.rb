@@ -10,6 +10,11 @@ describe 'pfreude_enc' do
           python3_version: '3.10',
         )
       end
+      let(:params) do
+        {
+          postgres_password: 'password',
+        }
+      end
 
       let(:pre_condition) { 'service { "puppetserver": }' }
 
