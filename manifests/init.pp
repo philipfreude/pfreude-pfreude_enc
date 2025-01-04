@@ -1,5 +1,7 @@
 # @summary setup external node classifier for puppet
 #
+# @param ensure
+#   global toggle for the state of the external node classifier
 # @param enc_dir
 #   directory for external node classifier
 # @param enc_file_name
@@ -19,42 +21,17 @@
 # @param puppetconf
 #   path to puppet.conf
 class pfreude_enc (
-  String  $enc_dir           = '/etc/puppetlabs/puppet/enc',
-  String  $enc_file_name     = 'enc.py',
-  Boolean $manage_virtualenv = true,
-  String  $postgres_host     = '127.0.0.1',
-  String  $postgres_database = 'puppet',
-  String  $postgres_user     = 'puppet',
-  String  $postgres_password = undef,
-  Boolean $manage_puppetconf = true,
-  String  $puppetconf        = '/etc/puppetlabs/puppet/puppet.conf',
+  Enum['present', 'absent'] $ensure            = present,
+  String                    $enc_dir           = '/etc/puppetlabs/puppet/enc',
+  String                    $enc_file_name     = 'enc.py',
+  Boolean                   $manage_virtualenv = true,
+  String                    $postgres_host     = '127.0.0.1',
+  String                    $postgres_database = 'puppet',
+  String                    $postgres_user     = 'puppet',
+  String                    $postgres_password = undef,
+  Boolean                   $manage_puppetconf = true,
+  String                    $puppetconf        = '/etc/puppetlabs/puppet/puppet.conf',
 ) {
-  file { $enc_dir:
-    ensure => 'directory',
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0755',
-  }
-  file { "${enc_dir}/${enc_file_name}":
-    content => template('pfreude_enc/enc.py.erb'),
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
-    require => File[$enc_dir],
-  }
-  file { "${enc_dir}/settings.py":
-    content => template('pfreude_enc/settings.py.erb'),
-    owner   => 'puppet',
-    group   => 'puppet',
-    mode    => '0600',
-  }
-  $requirements_txt = "${enc_dir}/requirements.txt"
-  file { $requirements_txt:
-    content => file('pfreude_enc/requirements.txt'),
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-  }
   if $manage_virtualenv and !defined(Package['virtualenv']) {
     class { 'python':
       dev => 'present',
@@ -65,18 +42,53 @@ class pfreude_enc (
       ensure => installed,
     }
   }
-  python::pyvenv { "${enc_dir}/venv":
-    ensure => present,
-  }
-  python::requirements { $requirements_txt:
-    virtualenv => "${enc_dir}/venv",
-    require    => [File[$requirements_txt], Package['libpq-dev']],
+  if $ensure == 'present' {
+    file { $enc_dir:
+      ensure => directory,
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755',
+    }
+    file { "${enc_dir}/${enc_file_name}":
+      content => template('pfreude_enc/enc.py.erb'),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0755',
+      require => File[$enc_dir],
+    }
+    file { "${enc_dir}/settings.py":
+      content => template('pfreude_enc/settings.py.erb'),
+      owner   => 'puppet',
+      group   => 'puppet',
+      mode    => '0600',
+    }
+    $requirements_txt = "${enc_dir}/requirements.txt"
+    file { $requirements_txt:
+      content => file('pfreude_enc/requirements.txt'),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+    }
+    python::pyvenv { "${enc_dir}/venv":
+      ensure => present,
+    }
+    python::requirements { $requirements_txt:
+      virtualenv => "${enc_dir}/venv",
+      require    => [File[$requirements_txt], Package['libpq-dev']],
+    }
+  } else {
+    file { $enc_dir:
+      ensure  => absent,
+      recurse => true,
+      purge   => true,
+      force   => true,
+    }
   }
 
   if $manage_puppetconf {
     Ini_setting {
       path    => $puppetconf,
-      ensure  => present,
+      ensure  => $ensure,
       section => 'master',
       notify  => Service['puppetserver'],
     }
